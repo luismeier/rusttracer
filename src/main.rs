@@ -3,8 +3,10 @@ fn main() {
     const IMAGE_HEIGHT: u32 = 256;
 
     println!("P3\n{} {}\n255\n", IMAGE_WITH, IMAGE_HEIGHT);
-
+    
     for j in (0..IMAGE_HEIGHT).rev() {
+        eprint!("\rScanlines remaining: {} ", j);
+
         for i in 0..IMAGE_WITH {
             let r = i as f32 / IMAGE_WITH as f32;
             let g = j as f32 / IMAGE_HEIGHT as f32;
@@ -16,4 +18,5 @@ fn main() {
             println!("{} {} {}", ir, ig, ib);
         }
     }
+    eprint!("\nAll Done!");
 }
