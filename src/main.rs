@@ -1,3 +1,7 @@
+mod vec3;
+use crate::vec3::write_color;
+use crate::vec3::Vec3;
+
 fn main() {
     const IMAGE_WITH: i32 = 256;
     const IMAGE_HEIGHT: u32 = 256;
@@ -8,14 +12,10 @@ fn main() {
         eprint!("\rScanlines remaining: {} ", j);
 
         for i in 0..IMAGE_WITH {
-            let r = i as f32 / IMAGE_WITH as f32;
-            let g = j as f32 / IMAGE_HEIGHT as f32;
-            let b = 0.25;
+            let pixel_color = Vec3::new(i as f64/ IMAGE_WITH as f64, j as f64 / IMAGE_HEIGHT as f64, 0.25);
+            write_color(pixel_color);
 
-            let ir: i32 = (255.99 * r) as i32;
-            let ig: i32 = (255.99 * g) as i32;
-            let ib: i32 = (255.99 * b) as i32;
-            println!("{} {} {}", ir, ig, ib);
+
         }
     }
     eprint!("\nAll Done!");
