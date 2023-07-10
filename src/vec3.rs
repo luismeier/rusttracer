@@ -7,13 +7,6 @@ pub struct Vec3 {
     pub z: f64,
 }
 
-pub fn write_color(v: Vec3) -> () {
-    let ir: i32 = (255.99 * v.x()) as i32;
-    let ig: i32 = (255.99 * v.y()) as i32;
-    let ib: i32 = (255.99 * v.z()) as i32;
-    println!("{} {} {}", ir, ig, ib);
-}
-
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
         Vec3 { x, y, z }
@@ -128,4 +121,15 @@ impl ops::Div<Vec3> for f64 {
     fn div(self, v: Vec3) -> Vec3 {
         Vec3::new(self * v.x, self * v.y, self * v.z)
     }
+}
+// Helper functions
+pub fn write_color(v: Vec3) -> () {
+    let ir: i32 = (255.99 * v.x()) as i32;
+    let ig: i32 = (255.99 * v.y()) as i32;
+    let ib: i32 = (255.99 * v.z()) as i32;
+    println!("{} {} {}", ir, ig, ib);
+}
+
+pub fn dot(v1: &Vec3, v2: &Vec3) -> f64 {
+    v1.x() * v2.x() + v1.y() * v2.y() + v1.z() * v2.z()
 }

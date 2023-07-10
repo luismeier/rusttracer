@@ -2,19 +2,32 @@ mod ray;
 mod vec3;
 
 use crate::ray::Ray;
+use crate::vec3::dot;
 use crate::vec3::write_color;
 use crate::vec3::Vec3;
 
 fn ray_color(ray: &Ray) -> Vec3 {
+    if hit_sphere(&Vec3::new(0.0, 0.0, -2.0), 0.5, ray) {
+        return Vec3::new(1.0, 0.0, 0.0);
+    }
     let unit_dir = ray.direction().unit();
     let t = 0.5 * (unit_dir.y() + 1.0);
     return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
 }
 
+fn hit_sphere(center: &Vec3, radius: f64, ray: &Ray) -> bool {
+    let oc = ray.origin() - *center;
+    let a = ray.direction().dot(ray.direction());
+    let b = 2.0 * dot(&oc, &ray.direction());
+    let c = dot(&oc, &oc) - radius * radius;
+    let discriminant: f64 = b * b - 4.0 * a * c;
+    return discriminant > 0.0;
+}
+
 fn main() {
     // Image
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    const IMAGE_WITH: i64 = 400;
+    const IMAGE_WITH: i64 = 800;
     const IMAGE_HEIGHT: i64 = (IMAGE_WITH as f64 / ASPECT_RATIO) as i64;
 
     // Camera
