@@ -47,6 +47,6 @@ impl Hitable for Sphere {
         }
         let p = ray.at(root);
         let hr = HitRecord::new(p, (p - *self.center()) / self.radius, root);
-        return Some(hr);
+        Some(hr)
     }
 }

@@ -24,6 +24,6 @@ impl Hitable for HitableList {
                 hit_anything = Some(hit);
             }
         }
-        return hit_anything;
+        hit_anything
     }
 }

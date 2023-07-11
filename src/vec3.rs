@@ -123,7 +123,7 @@ impl ops::Div<Vec3> for f64 {
     }
 }
 // Helper functions
-pub fn write_color(v: Vec3) -> () {
+pub fn write_color(v: Vec3) {
     let ir: i32 = (255.99 * v.x()) as i32;
     let ig: i32 = (255.99 * v.y()) as i32;
     let ib: i32 = (255.99 * v.z()) as i32;

@@ -15,11 +15,11 @@ use Vec3 as Color;
 
 fn ray_color(ray: &Ray, world: &dyn Hitable) -> Color {
     match world.hit(ray, 0.0, std::f64::INFINITY) {
-        Some(hit_record) => return 0.5 * (hit_record.normal + Color::new(1.0, 1.0, 1.0)),
+        Some(hit_record) => 0.5 * (hit_record.normal + Color::new(1.0, 1.0, 1.0)),
         None => {
             let unit_direction = ray.direction().unit();
             let t = 0.5 * (unit_direction.y + 1.0);
-            return (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0);
+            (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
         }
     }
 }
