@@ -1,27 +1,27 @@
+mod hitable;
+mod hitable_list;
 mod ray;
+mod sphere;
 mod vec3;
 
-use crate::ray::Ray;
-use crate::vec3::dot;
+use crate::hitable_list::HitableList;
+use crate::sphere::Sphere;
 use crate::vec3::write_color;
 use crate::vec3::Vec3;
+use hitable::Hitable;
+use ray::Ray;
 
-fn ray_color(ray: &Ray) -> Vec3 {
-    if hit_sphere(&Vec3::new(0.0, 0.0, -2.0), 0.5, ray) {
-        return Vec3::new(1.0, 0.0, 0.0);
+use Vec3 as Color;
+
+fn ray_color(ray: &Ray, world: &dyn Hitable) -> Color {
+    match world.hit(ray, 0.0, std::f64::INFINITY) {
+        Some(hit_record) => return 0.5 * (hit_record.normal + Color::new(1.0, 1.0, 1.0)),
+        None => {
+            let unit_direction = ray.direction().unit();
+            let t = 0.5 * (unit_direction.y + 1.0);
+            return (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0);
+        }
     }
-    let unit_dir = ray.direction().unit();
-    let t = 0.5 * (unit_dir.y() + 1.0);
-    return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
-}
-
-fn hit_sphere(center: &Vec3, radius: f64, ray: &Ray) -> bool {
-    let oc = ray.origin() - *center;
-    let a = ray.direction().dot(ray.direction());
-    let b = 2.0 * dot(&oc, &ray.direction());
-    let c = dot(&oc, &oc) - radius * radius;
-    let discriminant: f64 = b * b - 4.0 * a * c;
-    return discriminant > 0.0;
 }
 
 fn main() {
@@ -29,6 +29,12 @@ fn main() {
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const IMAGE_WITH: i64 = 800;
     const IMAGE_HEIGHT: i64 = (IMAGE_WITH as f64 / ASPECT_RATIO) as i64;
+
+    // World
+    let world = HitableList::new(vec![
+        Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)),
+        Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0)),
+    ]);
 
     // Camera
     let viewport_height: f64 = 2.0;
@@ -53,7 +59,7 @@ fn main() {
                 lower_left_corner + u * horizontal + v * vertical - origin,
             );
 
-            let pixel_color = ray_color(&ray);
+            let pixel_color = ray_color(&ray, &world);
             write_color(pixel_color);
         }
     }
