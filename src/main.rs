@@ -1,3 +1,5 @@
+mod camera;
+mod helper;
 mod hitable;
 mod hitable_list;
 mod ray;
