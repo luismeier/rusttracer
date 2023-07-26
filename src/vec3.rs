@@ -122,11 +122,27 @@ impl ops::Div<Vec3> for f64 {
         Vec3::new(self * v.x, self * v.y, self * v.z)
     }
 }
+
+impl ops::AddAssign<Vec3> for Vec3 {
+    fn add_assign(&mut self, rhs: Vec3) {
+        *self = Vec3::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
+    }
+}
 // Helper functions
-pub fn write_color(v: Vec3) {
-    let ir: i32 = (255.99 * v.x()) as i32;
-    let ig: i32 = (255.99 * v.y()) as i32;
-    let ib: i32 = (255.99 * v.z()) as i32;
+pub fn write_color(v: Vec3, samples_per_pixel: i64) {
+    let mut r = v.x();
+    let mut g = v.y();
+    let mut b = v.z();
+
+    let scale = 1.0 / samples_per_pixel as f64;
+    r *= scale;
+    g *= scale;
+    b *= scale;
+
+    let ir = (256.0 * num::clamp(r, 0.0, 0.999)) as i64;
+    let ig = (256.0 * num::clamp(g, 0.0, 0.999)) as i64;
+    let ib = (256.0 * num::clamp(b, 0.0, 0.999)) as i64;
+
     println!("{} {} {}", ir, ig, ib);
 }
 
