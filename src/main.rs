@@ -14,11 +14,24 @@ use hitable::Hitable;
 use rand::Rng;
 use ray::Ray;
 
+use vec3::random_in_unit_sphere;
 use Vec3 as Color;
 
-fn ray_color(ray: &Ray, world: &dyn Hitable) -> Color {
-    match world.hit(ray, 0.0, std::f64::INFINITY) {
-        Some(hit_record) => 0.5 * (hit_record.normal + Color::new(1.0, 1.0, 1.0)),
+fn ray_color(ray: &Ray, world: &dyn Hitable, depht: i64) -> Color {
+    match world.hit(ray, 0.001, std::f64::INFINITY) {
+        Some(hit_record) => {
+            if depht <= 0 {
+                return Color::new(0.0, 0.0, 0.0);
+            }
+
+            let target = hit_record.p + hit_record.normal + random_in_unit_sphere();
+            0.5 * ray_color(
+                &Ray::new(hit_record.p, target - hit_record.p),
+                world,
+                depht - 1,
+            )
+        }
+
         None => {
             let unit_direction = ray.direction().unit();
             let t = 0.5 * (unit_direction.y + 1.0);
@@ -31,9 +44,10 @@ fn main() {
     let mut rng = rand::thread_rng();
     // Image
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    const IMAGE_WITH: i64 = 800;
+    const IMAGE_WITH: i64 = 400;
     const IMAGE_HEIGHT: i64 = (IMAGE_WITH as f64 / ASPECT_RATIO) as i64;
     const SAMPLES_PER_PIXEL: i64 = 100;
+    const MAX_DEPHT: i64 = 50;
 
     // World
     let world = HitableList::new(vec![
@@ -55,7 +69,7 @@ fn main() {
                 let v = (j as f64 + rng.gen::<f64>()) / IMAGE_HEIGHT as f64;
                 let ray = camera.get_ray(u, v);
 
-                pixel_color += ray_color(&ray, &world);
+                pixel_color += ray_color(&ray, &world, MAX_DEPHT);
             }
             write_color(pixel_color, SAMPLES_PER_PIXEL);
         }

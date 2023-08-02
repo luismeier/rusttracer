@@ -1,5 +1,7 @@
 use std::ops;
 
+use rand::Rng;
+
 #[derive(Copy, Clone)]
 pub struct Vec3 {
     pub x: f64,
@@ -19,9 +21,11 @@ impl Vec3 {
     pub fn y(self) -> f64 {
         self.y
     }
+
     pub fn z(self) -> f64 {
         self.z
     }
+
     pub fn squared_length(self) -> f64 {
         self.x().powf(2.0) + self.y().powf(2.0) + self.z().powf(2.0)
     }
@@ -134,10 +138,11 @@ pub fn write_color(v: Vec3, samples_per_pixel: i64) {
     let mut g = v.y();
     let mut b = v.z();
 
+    // Divide the color by the number of samples and gamma-correct for gamma=2.0.
     let scale = 1.0 / samples_per_pixel as f64;
-    r *= scale;
-    g *= scale;
-    b *= scale;
+    r = f64::sqrt(scale * r);
+    g = f64::sqrt(scale * g);
+    b = f64::sqrt(scale * b);
 
     let ir = (256.0 * num::clamp(r, 0.0, 0.999)) as i64;
     let ig = (256.0 * num::clamp(g, 0.0, 0.999)) as i64;
@@ -148,4 +153,15 @@ pub fn write_color(v: Vec3, samples_per_pixel: i64) {
 
 pub fn dot(v1: &Vec3, v2: &Vec3) -> f64 {
     v1.x() * v2.x() + v1.y() * v2.y() + v1.z() * v2.z()
+}
+
+pub fn random_in_unit_sphere() -> Vec3 {
+    let mut rng = rand::thread_rng();
+    let unit = Vec3::new(1.0, 1.0, 1.0);
+    loop {
+        let p = 2.0 * Vec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()) - unit;
+        if p.squared_length() < 1.0 {
+            return p;
+        }
+    }
 }
