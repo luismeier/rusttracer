@@ -51,6 +51,7 @@ impl Vec3 {
             self.x() * v.y() - self.y() * v.x(),
         )
     }
+
 }
 
 impl ops::Add<Vec3> for Vec3 {
@@ -163,6 +164,9 @@ pub fn dot(v1: &Vec3, v2: &Vec3) -> f64 {
     v1.x() * v2.x() + v1.y() * v2.y() + v1.z() * v2.z()
 }
 
+/**
+ * Returns a vec3 with random values in a unit sphere
+ */
 pub fn random_in_unit_sphere() -> Vec3 {
     let mut rng = rand::thread_rng();
     let unit = Vec3::new(1.0, 1.0, 1.0);
