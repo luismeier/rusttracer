@@ -2,6 +2,8 @@ use std::ops;
 
 use rand::Rng;
 
+use crate::linear_to_gamma;
+
 #[derive(Copy, Clone)]
 pub struct Vec3 {
     pub x: f64,
@@ -140,10 +142,16 @@ pub fn write_color(v: Vec3, samples_per_pixel: i64) {
 
     // Divide the color by the number of samples and gamma-correct for gamma=2.0.
     let scale = 1.0 / samples_per_pixel as f64;
-    r = f64::sqrt(scale * r);
-    g = f64::sqrt(scale * g);
-    b = f64::sqrt(scale * b);
+    r = scale * r;
+    g = scale * g;
+    b = scale * b;
 
+    // Apply linear to gamma transform
+    r = linear_to_gamma(r);
+    g = linear_to_gamma(g);
+    b = linear_to_gamma(b);
+
+    // Write trnaslated [0,255] value of each color component
     let ir = (256.0 * num::clamp(r, 0.0, 0.999)) as i64;
     let ig = (256.0 * num::clamp(g, 0.0, 0.999)) as i64;
     let ib = (256.0 * num::clamp(b, 0.0, 0.999)) as i64;

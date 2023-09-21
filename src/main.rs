@@ -17,21 +17,30 @@ use ray::Ray;
 use vec3::random_in_unit_sphere;
 use Vec3 as Color;
 
+fn linear_to_gamma(linear: f64) -> f64 {
+    return linear.sqrt();
+}
+
 fn ray_color(ray: &Ray, world: &dyn Hitable, depht: i64) -> Color {
+    // Check if we hit something
     match world.hit(ray, 0.001, std::f64::INFINITY) {
+        // there is a hit
         Some(hit_record) => {
+            // Check if we have reached max depht
+            // this is to prevent endless bounces of light
             if depht <= 0 {
                 return Color::new(0.0, 0.0, 0.0);
             }
 
             let target = hit_record.p + hit_record.normal + random_in_unit_sphere();
-            0.5 * ray_color(
+            0.1 * ray_color(
                 &Ray::new(hit_record.p, target - hit_record.p),
                 world,
                 depht - 1,
             )
         }
 
+        // no hit
         None => {
             let unit_direction = ray.direction().unit();
             let t = 0.5 * (unit_direction.y + 1.0);
