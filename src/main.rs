@@ -16,7 +16,6 @@ use hitable::Hitable;
 use rand::Rng;
 use ray::Ray;
 
-use vec3::random_in_unit_sphere;
 use Vec3 as Color;
 
 fn linear_to_gamma(linear: f64) -> f64 {
@@ -67,9 +66,11 @@ fn main() {
     };
     let material_left = Material::Metal {
         attenuation: Vec3::new(0.8, 0.8, 0.8),
+        fuzzines: 0.3,
     };
     let material_right = Material::Metal {
         attenuation: Vec3::new(0.8, 0.6, 0.2),
+        fuzzines: 1.0,
     };
 
     // World
