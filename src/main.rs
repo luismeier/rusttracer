@@ -55,33 +55,33 @@ fn main() {
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const IMAGE_WITH: i64 = 900;
     const IMAGE_HEIGHT: i64 = (IMAGE_WITH as f64 / ASPECT_RATIO) as i64;
-    const SAMPLES_PER_PIXEL: i64 = 100;
+    const SAMPLES_PER_PIXEL: i64 = 10;
     const MAX_DEPHT: i64 = 50;
 
     let material_ground = Material::Lambertian {
         attenuation: Vec3::new(0.8, 0.8, 0.0),
     };
     let material_center = Material::Lambertian {
-        attenuation: Vec3::new(0.7, 0.3, 0.3),
-    };
-    let material_left = Material::Metal {
-        attenuation: Vec3::new(0.8, 0.8, 0.8),
-        fuzzines: 0.3,
+        attenuation: Vec3::new(0.1, 0.2, 0.5),
     };
     let material_right = Material::Metal {
         attenuation: Vec3::new(0.8, 0.6, 0.2),
-        fuzzines: 1.0,
+        fuzzines: 0.0,
+    };
+    let material_left = Material::Dielectric {
+        refraction_idx: 1.5,
     };
 
     // World
     let world = HitableList::new(vec![
-        Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, material_center)),
         Box::new(Sphere::new(
             Vec3::new(0.0, -100.5, -1.0),
             100.0,
             material_ground,
         )),
+        Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, material_center)),
         Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, material_left)),
+        Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), -0.4, material_left)),
         Box::new(Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, material_right)),
     ]);
 
