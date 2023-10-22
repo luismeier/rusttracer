@@ -22,6 +22,85 @@ fn linear_to_gamma(linear: f64) -> f64 {
     return linear.sqrt();
 }
 
+
+
+fn random_scene() -> HitableList {
+    let mut rng = rand::thread_rng();
+    let mut list: Vec<Box<dyn Hitable>> = vec![];
+    list.push(Box::new(Sphere::new(
+        Vec3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Material::Lambertian {
+            attenuation: Vec3::new(0.5, 0.5, 0.5),
+        },
+    )));
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_mat = rng.gen::<f64>();
+            let center = Vec3::new(
+                f64::from(a) + 0.9 * rng.gen::<f64>(),
+                0.2,
+                f64::from(b) + 0.9 * rng.gen::<f64>(),
+            );
+            if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
+                if choose_mat < 0.8 {
+                    list.push(Box::new(Sphere::new(
+                        center,
+                        0.2,
+                        Material::Lambertian {
+                            attenuation: Vec3::new(
+                                rng.gen::<f64>() * rng.gen::<f64>(),
+                                rng.gen::<f64>() * rng.gen::<f64>(),
+                                rng.gen::<f64>() * rng.gen::<f64>(),
+                            ),
+                        },
+                    )));
+                } else if choose_mat < 0.95 {
+                    list.push(Box::new(Sphere::new(
+                        center,
+                        0.2,
+                        Material::Metal {
+                            attenuation: Vec3::new(
+                                0.5 * (1.0 + rng.gen::<f64>()),
+                                0.5 * (1.0 + rng.gen::<f64>()),
+                                0.5 * (1.0 + rng.gen::<f64>()),
+                            ),
+                            fuzzines: 0.5 * rng.gen::<f64>(),
+                        },
+                    )));
+                } else {
+                    list.push(Box::new(Sphere::new(
+                        center,
+                        0.2,
+                        Material::Dielectric { refraction_idx: 1.5 },
+                    )));
+                }
+            }
+        }
+    }
+    list.push(Box::new(Sphere::new(
+        Vec3::new(0.0, 1.0, 0.0),
+        1.0,
+        Material::Dielectric { refraction_idx: 1.5 },
+    )));
+    list.push(Box::new(Sphere::new(
+        Vec3::new(-4.0, 1.0, 0.0),
+        1.0,
+        Material::Lambertian {
+            attenuation: Vec3::new(0.4, 0.2, 0.1),
+        },
+    )));
+    list.push(Box::new(Sphere::new(
+        Vec3::new(4.0, 1.0, 0.0),
+        1.0,
+        Material::Metal {
+            attenuation: Vec3::new(0.7, 0.6, 0.5),
+            fuzzines: 0.0,
+        },
+    )));
+    HitableList::new(list)
+}
+
 fn ray_color(ray: &Ray, world: &dyn Hitable, depht: i64) -> Color {
     // Check if we hit something
     match world.hit(ray, 0.001, std::f64::INFINITY) {
@@ -53,40 +132,30 @@ fn main() {
     let mut rng = rand::thread_rng();
     // Image
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    const IMAGE_WITH: i64 = 900;
+    const IMAGE_WITH: i64 = 1920;
     const IMAGE_HEIGHT: i64 = (IMAGE_WITH as f64 / ASPECT_RATIO) as i64;
-    const SAMPLES_PER_PIXEL: i64 = 10;
+    const SAMPLES_PER_PIXEL: i64 = 600;
     const MAX_DEPHT: i64 = 50;
 
-    let material_ground = Material::Lambertian {
-        attenuation: Vec3::new(0.8, 0.8, 0.0),
-    };
-    let material_center = Material::Lambertian {
-        attenuation: Vec3::new(0.1, 0.2, 0.5),
-    };
-    let material_right = Material::Metal {
-        attenuation: Vec3::new(0.8, 0.6, 0.2),
-        fuzzines: 0.0,
-    };
-    let material_left = Material::Dielectric {
-        refraction_idx: 1.5,
-    };
+    let world = random_scene();
 
-    // World
-    let world = HitableList::new(vec![
-        Box::new(Sphere::new(
-            Vec3::new(0.0, -100.5, -1.0),
-            100.0,
-            material_ground,
-        )),
-        Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, material_center)),
-        Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, material_left)),
-        Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), -0.4, material_left)),
-        Box::new(Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, material_right)),
-    ]);
+
+    let lookfrom = Vec3::new(13.0, 2.0, 3.0);
+    let lookat = Vec3::new(0.0, 0.0, 0.0);
+    let dist_to_focus = (lookfrom - lookat).length();
+    let aperture = 0.1;
 
     // Camera
-    let camera = Camera::new();
+
+    let camera = Camera::new(
+        lookfrom,
+        lookat,
+        Vec3::new(0.0, 1.0, 0.0),
+        40.0,
+        (IMAGE_WITH / IMAGE_HEIGHT) as f64,
+        aperture,
+        10.0,
+    );
 
     println!("P3\n{} {}\n255\n", IMAGE_WITH, IMAGE_HEIGHT);
 
